@@ -1,0 +1,75 @@
+Api Assignment 
+
+Assignment1:
+1.Make a get call for https://coinmap.org/api/v1/venues/
+2.Get the count of categories list like atm, cafe, shopping, food, lodging , attraction , default are available.
+3.And get the names of only “food” category and geo locations.
+
+
+Api Assignment Solution:
+package TestThree;
+
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import io.restassured.response.ResponseBody;
+import static io.restassured.RestAssured.given;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+
+public class RestTestThree {
+
+	public static void main(String[] args) {
+
+
+		String readEndpoint= "https://coinmap.org/api/v1/venues/";
+
+
+		Response response =given().
+				log().all()
+				.when()		
+				.get(readEndpoint);
+
+		ResponseBody rbody = response.getBody();
+		String stringBody = rbody.asString();
+		JsonPath jpath =response.jsonPath();
+		JSONObject al = new JSONObject(stringBody);   
+		JSONArray jsonArray = al.getJSONArray("venues");  
+		System.out.println("the al is"+jsonArray);
+		ArrayList<String> categoryLists = new ArrayList<String>();
+		
+
+		// Iterate jsonArray using for loop and get the count of the categories  
+		for (int i = 0; i < jsonArray.length(); i++) {  
+	    JSONObject eachObj = jsonArray.getJSONObject(i);  
+	    categoryLists.add(eachObj.get("category").toString());  
+		}    
+		System.out.println("the count of the category field "+categoryLists.size());
+		
+				
+		//to find Food category and get Name and its Geo Locations
+		String compareString ="food";
+		Map<String,String> foodAndLocations = new LinkedHashMap<String, String>();
+		for (int i = 0; i < jsonArray.length(); i++) {  
+		    JSONObject eachObj = jsonArray.getJSONObject(i);  
+		   String categoryValue = eachObj.get("category").toString();  
+		   if (categoryValue.equals(compareString)){
+			   foodAndLocations.put(eachObj.get("name").toString(), eachObj.get("geolocation_degrees").toString());			   
+			   
+		   }
+		    
+		}    
+		
+	for (Map.Entry<String, String> entry : foodAndLocations.entrySet()) {
+		String foodName = entry.getKey();
+		String GeoLocations = entry.getValue();
+		System.out.println(foodName+": "+GeoLocations);
+		
+	}
+			
+	}
+}
+
